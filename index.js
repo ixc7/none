@@ -3,7 +3,14 @@
 const env = {
   maxWidth: process.stdout.columns,
   maxHeight: process.stdout.rows,
-  quitKey: 'q'
+  quitKey: 'q',
+  gotoBottom: `\x1b[${process.stdout.rows};1H`,
+  gotoTop: `\x1b[1;1H`,
+  startTxt: `
+    press 'q' to quit
+    press 'Opt-Up' to jump to top
+    press 'Opt-Down' to jump to bottom
+  `
 }
 
 const keyMap = {
@@ -53,7 +60,8 @@ const keyMap = {
 
   '\x1B[A': 'Up',
   '\x1B[1;5A': 'Ctrl-Up',
-  '\x1B[1;3A': 'Opt-Up',
+  // '\x1B[1;3A': 'Opt-Up',
+  '\x1B[1;3A': env.gotoTop,
   '\x1B[1;2A': 'Shift-Up',
   '\x1B[1;6A': 'Ctrl-Shift-Up',
   '\x1B[1;4A': 'Opt-Shift-Up',
@@ -61,7 +69,8 @@ const keyMap = {
   
   '\x1B[B': 'Down',
   '\x1B[1;5B': 'Ctrl-Down',
-  '\x1B[1;3B': 'Opt-Down',
+  // '\x1B[1;3B': 'Opt-Down',
+  '\x1B[1;3B': env.gotoBottom,
   '\x1B[1;2B': 'Shift-Down',
   '\x1B[1;6B': 'Ctrl-Shift-Down',
   '\x1B[1;4B': 'Opt-Shift-Down',
@@ -77,7 +86,10 @@ process.stdin.on('data', x => {
   const str = Buffer.from(x).toString()
 
   if (str === env.quitKey) process.exit(0)
-  else if (keyMap[str]) console.log(keyMap[str])
+
+  if (keyMap[str]) {
+    process.stdout.write(keyMap[str])
+  }
   else console.log({str})
 })
 
@@ -87,5 +99,5 @@ process.on('SIGWINCH', () => {
   console.log(`SIGWINCH: ${env.maxWidth}, ${env.maxHeight}`)
 })
 
-process.on('exit', x => console.log('quit', x))
-console.log(`press '${env.quitKey}' to quit`)
+process.on('exit', code => console.log(`quit with code: ${code}`))
+console.log(env.startTxt)
