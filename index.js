@@ -6,12 +6,18 @@ const env = {
   quitKey: 'q',
   gotoBottom: `\x1b[${process.stdout.rows};1H`,
   gotoTop: `\x1b[1;1H`,
+  gotoLeft: `\x1B[${process.stdout.columns}D`,
+  gotoRight: `\x1B[${process.stdout.columns}C`,
   startTxt: `
     press 'q' to quit
     press 'Opt-Up' to jump to top
     press 'Opt-Down' to jump to bottom
+    press 'Opt-Right' to jump to end of line
+    press 'Opt-Left' to jump to beginning of line
   `
 }
+
+// tput sc, rc
 
 const keyMap = {
   '\x03': 'Ctrl-C',
@@ -42,23 +48,25 @@ const keyMap = {
   '\x1B': 'Ctrl-[',
   '\x1D': 'Ctrl-]',
 
-  '\x1B[D': 'Left',
+  // '\x1B[D': 'Left',
   '\x1B[H': 'Ctrl-Left (Home)',
-  '\x1Bb': 'Opt-Left',
+  // '\x1Bb': 'Opt-Left',
+  '\x1Bb': env.gotoLeft,
   '\x1B[1;2D': 'Shift-left',
   '\x1B[1;6D': 'Ctrl-Shift-Left',
   '\x1B[1;4D': 'Opt-Shift-Left',
   '\x1B[1;8D': 'Ctrl-Opt-Shift-Left',
 
-  '\x1B[C': 'Right',
+  // '\x1B[C': 'Right',
   '\x1B[1;5C': 'Ctrl-Right',
-  '\x1Bf': 'Opt-Right',
+  // '\x1Bf': 'Opt-Right',
+  '\x1Bf': env.gotoRight,
   '\x1B[1;2C': 'Shift-Right',
   '\x1B[1;6C': 'Ctrl-Shift-Right',
   '\x1B[1;4C': 'Opt-Shift-Right',
   '\x1B[1;8C': 'Ctrl-Opt-Shift-Right',
 
-  '\x1B[A': 'Up',
+  // '\x1B[A': 'Up',
   '\x1B[1;5A': 'Ctrl-Up',
   // '\x1B[1;3A': 'Opt-Up',
   '\x1B[1;3A': env.gotoTop,
@@ -67,7 +75,7 @@ const keyMap = {
   '\x1B[1;4A': 'Opt-Shift-Up',
   '\x1B[1;8A': 'Ctrl-Opt-Shift-Up',
   
-  '\x1B[B': 'Down',
+  // '\x1B[B': 'Down',
   '\x1B[1;5B': 'Ctrl-Down',
   // '\x1B[1;3B': 'Opt-Down',
   '\x1B[1;3B': env.gotoBottom,
@@ -90,7 +98,8 @@ process.stdin.on('data', x => {
   if (keyMap[str]) {
     process.stdout.write(keyMap[str])
   }
-  else console.log({str})
+  else process.stdout.write(str)
+  // else console.log({str})
 })
 
 process.on('SIGWINCH', () => {
