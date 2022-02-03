@@ -6,32 +6,31 @@ const env = {
   quitKey: 'q',
   gotoBottom: `\x1b[${process.stdout.rows};1H`,
   gotoTop: '\x1b[1;1H',
+  
   gotoLeft: `\x1B[${process.stdout.columns}D`,
+  newline: `\x1B[${process.stdout.columns}D\x1b[B`,
+  // gotoLeft + down 1
+
   gotoRight: `\x1B[${process.stdout.columns}C`,
   jumpBackspace: '\x1B\b',
+  
   sc: '\x1b7',
   rc: '\x1b8', 
-  // rc ok w down/up arrows 
-  // doesnt work w newline
-  newline: '\r\n',
-  // newline: '\n'
-  tab: '\t',
-  // unneccessary?
-  startTxt: `
+  // TODO handle buffer height larger than screen
 
-    [keys]
-    
+  tab: '\t',
+  startTxt: `
+    [keybindings]
+
     + 'q' quit
     + 'S' save cursor position
     + 'R' restore cursor position
-    + [enter] newline
-    
-    'Opt-[arrow keys]' jump
-
-    + 'Up' top of screen
-    + Down' bottom of screen
-    + 'Right' end of line
-    + 'Left' beginning of line
+    + <enter> newline
+    + <opt> <arrows> jump
+      - 'Up' top of screen
+      - 'Down' bottom of screen
+      - 'Right' end of line
+      - 'Left' beginning of line
   `
 }
 
@@ -116,9 +115,9 @@ process.stdin.on('data', (x) => {
   if (str === env.quitKey) process.exit(0)
 
   if (keyMap[str]) {
-    process.stdout.write(keyMap[str])
-  } else process.stdout.write(str)
-  // else console.log({str})
+    return process.stdout.write(keyMap[str])
+  } 
+  process.stdout.write(str)
 })
 
 process.on('SIGWINCH', () => {
